@@ -1,5 +1,6 @@
 from requests_html import HTMLSession
 
+
 def read_and_clean_txt_file(filename):
     try:
         with open(filename, 'r') as file:
@@ -44,7 +45,10 @@ def find_url(url):
     session = HTMLSession()
     r = session.get(url)
     r.html.render(sleep=1, keep_page=True, scrolldown=1)
-    
+
+    links = r.html.find("#a-link-normal")
+    print(links)
+    # python3 -m pip install pyppeteer
 
 
 def main():
@@ -59,6 +63,7 @@ def main():
         if temp_count < 1:
             url = amazon_url + book
             print(url)
+            find_url(url)
             temp_count += 1
 
 if __name__ == '__main__':
