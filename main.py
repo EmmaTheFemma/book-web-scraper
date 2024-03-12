@@ -156,7 +156,7 @@ def main():
     temp_count = 0
     markdown_content = "--- ---\n\n"
     for book in all_names_cleaned:
-        if temp_count < 1:
+        #if temp_count < 1:
             url = amazon_url + book
             print(url)
             result_one = find_url(url)
@@ -174,7 +174,7 @@ def main():
             markdown_content += "- Author: " + author_formatted + "\n"
             markdown_content += "- Pages: " + result_two["pages"] + "\n"
             
-            temp_count += 1
+            #temp_count += 1
             print(markdown_content)
 
             with open(markdown_file, 'w') as file: # Write the entire Markdown content to the file
