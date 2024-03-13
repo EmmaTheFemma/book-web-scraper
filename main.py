@@ -65,19 +65,19 @@ def find_url(url):
     #links = r.html.find('a', containing='reminiscences of a stock operator') # works but not getting the first and likely "best" result.
     #print(links[0])
 
-    print("SEARCH RESULTS:")
-    search_results = r.html.find('#search > div.s-desktop-width-max.s-desktop-content.s-opposite-dir.s-wide-grid-style.sg-row > div.sg-col-20-of-24.s-matching-dir.sg-col-16-of-20.sg-col.sg-col-8-of-12.sg-col-12-of-16 > div > span.rush-component.s-latency-cf-section', first=True)
-    print(search_results)
+    #print("SEARCH RESULTS:")
+    #search_results = r.html.find('#search > div.s-desktop-width-max.s-desktop-content.s-opposite-dir.s-wide-grid-style.sg-row > div.sg-col-20-of-24.s-matching-dir.sg-col-16-of-20.sg-col.sg-col-8-of-12.sg-col-12-of-16 > div > span.rush-component.s-latency-cf-section', first=True)
+    #print(search_results)
 
     print("First Search Result: ")
     first_search_result = r.html.find('#search > div.s-desktop-width-max.s-desktop-content.s-opposite-dir.s-wide-grid-style.sg-row > div.sg-col-20-of-24.s-matching-dir.sg-col-16-of-20.sg-col.sg-col-8-of-12.sg-col-12-of-16 > div > span.rush-component.s-latency-cf-section > div.s-main-slot.s-result-list.s-search-results.sg-row > div:nth-child(7) > div > div > span > div > div > div > div.puisg-col.puisg-col-4-of-12.puisg-col-8-of-16.puisg-col-12-of-20.puisg-col-12-of-24.puis-list-col-right > div > div > div.a-section.a-spacing-none.puis-padding-right-small.s-title-instructions-style > h2 > a', first=True)
+    if not first_search_result:
+        first_search_result = r.html.find('#search > div.s-desktop-width-max.s-desktop-content.s-opposite-dir.s-wide-grid-style.sg-row > div.sg-col-20-of-24.s-matching-dir.sg-col-16-of-20.sg-col.sg-col-8-of-12.sg-col-12-of-16 > div > span.rush-component.s-latency-cf-section > div.s-main-slot.s-result-list.s-search-results.sg-row > div:nth-child(6) > div > div > span > div > div > div > div.puisg-col.puisg-col-4-of-12.puisg-col-8-of-16.puisg-col-12-of-20.puisg-col-12-of-24.puis-list-col-right > div > div > div.a-section.a-spacing-none.puis-padding-right-small.s-title-instructions-style > h2 > a', first=True)
     print(first_search_result)
 
     print("Image")
     image = r.html.find('#search > div.s-desktop-width-max.s-desktop-content.s-opposite-dir.s-wide-grid-style.sg-row > div.sg-col-20-of-24.s-matching-dir.sg-col-16-of-20.sg-col.sg-col-8-of-12.sg-col-12-of-16 > div > span.rush-component.s-latency-cf-section > div.s-main-slot.s-result-list.s-search-results.sg-row > div:nth-child(7) > div > div > span > div > div > div > div.puisg-col.puisg-col-4-of-12.puisg-col-4-of-16.puisg-col-4-of-20.puisg-col-4-of-24.puis-list-col-left > div > div.s-product-image-container.aok-relative.s-text-center.s-image-overlay-grey.puis-image-overlay-grey.s-padding-left-small.s-padding-right-small.puis-flex-expand-height.puis.puis-v2v5pwx3nl8aar2aoxf0782v1pf > div > span > a > div > img', first=True)
     #image = image[0]
-
-    # TODO: Get the alt text.
 
     all_images = []
     image_alt = ""
@@ -110,7 +110,10 @@ def find_url(url):
 
 
 def get_pages(url):
-    print("Starting: find_url()")
+    print("Starting: get_pages()")
+    # TODO: Seems to load forever with:
+    # Why Stocks Go Up (And Down : A Guide to Sound Investing)
+    # Need to check this code somehow and see what the response is.
     session = HTMLSession()
     r = session.get(url, headers=headers)
     r.html.render(sleep=2, keep_page=True, scrolldown=1)
@@ -122,11 +125,32 @@ def get_pages(url):
     authors = [author.text for author in author_elements ]
     # TODO: Need to format the authors so it looks great! like this: Author name, Author name two.
     # Maybe remove anything that dosen't have (author) next to it?
-    print(authors)
+    #print(authors)
 
 
-    pages = r.html.find('#rpi-attribute-book_details-ebook_pages > div.a-section.a-spacing-none.a-text-center.rpi-attribute-value > span > a > span', first=True)
-    print(pages.text)
+    # TODO: Add more choises for pages? since seems to be diffrent
+    while True:
+        print("WHILE TRUE")
+        pages = r.html.find('#rpi-attribute-book_details-ebook_pages > div.a-section.a-spacing-none.a-text-center.rpi-attribute-value > span > a > span', first=True)
+        if not pages:
+            pages = r.html.find('#rpi-attribute-book_details-fiona_pages > div.a-section.a-spacing-none.a-text-center.rpi-attribute-value > span', first=True) # 'NoneType' object has no attribute 'text'
+            if not pages:
+                print("Still no pages found. Looking for kindles")
+                #kindle = r.html.find('#a-autoid-4-announce > a', first=True) # finds nothing???
+                #kindle = r.html.find('#a-autoid-4 > a', first=True) # #a-autoid-4 > a
+                #kindle = r.html.find('#a-autoid-0-announce', first=True) # #a-autoid-4 > a
+                #kindle = r.html.find('#a-autoid-4 > span > a', first=True) # #a-autoid-4 > a
+                kindle = r.html.xpath('//*[@id="a-autoid-4-announce"]')[0] # #a-autoid-4 > a
+                print("KINDLE: ", kindle)
+                kindle_link = kindle.attrs['href']# kindle.absolute_links.pop()
+                kindle_link = "https://www.amazon.com/" + kindle_link
+                r = session.get(kindle_link)
+                continue
+        else:
+            break
+        break
+
+    #print(pages.text)
     only_pages = only_keep_numbers(pages.text)
     #r.html.find('', first=True)
     result = {
@@ -134,6 +158,8 @@ def get_pages(url):
         'authors': authors,
         'pages': only_pages
     }
+
+    print(result)
     return result
 
 
@@ -153,32 +179,42 @@ def main():
     all_names = read_and_clean_txt_file(data_file)
     all_names_cleaned = process_lines(all_names)
     #print(all_names_cleaned)
-    temp_count = 0
+
+    test_url = "https://www.amazon.com/s?k=the+price+of+time" # Image list index out of range! might be just one?
+    test____ = ""
+    #get_pages(test_url)
+    temp_count = 1
+
     markdown_content = "--- ---\n\n"
-    for book in all_names_cleaned:
-        #if temp_count < 1:
-            url = amazon_url + book
-            print(url)
-            result_one = find_url(url)
-            result_two = get_pages(result_one["url"])
-            markdown_content += "## " + result_two["title"] + "\n"
+    if temp_count == 1: # So i can turn it off while testing.
+        for book in all_names_cleaned:
+                print("BOOK: ", book)
+            #if temp_count < 1:
+                url = amazon_url + book
+                #print(url)
+                result_one = find_url(url) #AttributeError: 'NoneType' object has no attribute 'text'
+                result_two = get_pages(result_one["url"])
+                markdown_content += "## " + result_two["title"] + "\n"
 
-            author_formatted = ""
-            for author in result_two["authors"]:
-                author_formatted += author + ","
-            author_formatted = remove_trailing_comma(author_formatted)
+                author_formatted = ""
+                for author in result_two["authors"]:
+                    author_formatted += author + ","
+                author_formatted = remove_trailing_comma(author_formatted)
 
-            # TODO: Add image
+                # TODO: Add image
 
-            markdown_content += '<img loading="lazy" src="' + result_one["image"] + '" alt="' + result_one["alt"] + '">\n'
-            markdown_content += "- Author: " + author_formatted + "\n"
-            markdown_content += "- Pages: " + result_two["pages"] + "\n"
-            
-            #temp_count += 1
-            print(markdown_content)
+                markdown_content += '<img loading="lazy" src="' + result_one["image"] + '" alt="' + result_one["alt"] + '">\n'
+                markdown_content += "- Author: " + author_formatted + "\n"
+                markdown_content += "- Pages: " + result_two["pages"] + "\n"
+                
+                #temp_count += 1
+                print(markdown_content)
 
-            with open(markdown_file, 'w') as file: # Write the entire Markdown content to the file
-                file.write(markdown_content)
+                print("Waiting 10 seconds for next")
+                time.sleep(10) # in seconds
+
+    with open(markdown_file, 'w') as file: # Write the entire Markdown content to the file
+        file.write(markdown_content)
 
 # Makes so main() only runs in this exact file.
 if __name__ == '__main__':
