@@ -77,6 +77,7 @@ def find_url(url):
 
     print("Image")
     image = r.html.find('#search > div.s-desktop-width-max.s-desktop-content.s-opposite-dir.s-wide-grid-style.sg-row > div.sg-col-20-of-24.s-matching-dir.sg-col-16-of-20.sg-col.sg-col-8-of-12.sg-col-12-of-16 > div > span.rush-component.s-latency-cf-section > div.s-main-slot.s-result-list.s-search-results.sg-row > div:nth-child(7) > div > div > span > div > div > div > div.puisg-col.puisg-col-4-of-12.puisg-col-4-of-16.puisg-col-4-of-20.puisg-col-4-of-24.puis-list-col-left > div > div.s-product-image-container.aok-relative.s-text-center.s-image-overlay-grey.puis-image-overlay-grey.s-padding-left-small.s-padding-right-small.puis-flex-expand-height.puis.puis-v2v5pwx3nl8aar2aoxf0782v1pf > div > span > a > div > img', first=True)
+
     #image = image[0]
 
     all_images = []
@@ -91,10 +92,11 @@ def find_url(url):
     if image and 'srcset' in image.attrs:
         srcset_values = image.attrs['srcset'].split(',')
         # Extract each URL from the srcset values
-        for srcset_value in srcset_values:
-            src_url = srcset_value.split()[0]
-            print(src_url)
-            all_images.append(src_url)
+        if isinstance(srcset_values, list):
+            for srcset_value in srcset_values:
+                src_url = srcset_value.split()[0]
+                print(src_url)
+                all_images.append(src_url)
     print(all_images)
     link_to_book = first_search_result.absolute_links.pop()
     print("Book URL: ", link_to_book)
@@ -181,9 +183,9 @@ def main():
     #print(all_names_cleaned)
 
     test_url = "https://www.amazon.com/s?k=the+price+of+time" # Image list index out of range! might be just one?
-    test____ = ""
     #get_pages(test_url)
-    temp_count = 1
+    find_url(test_url)
+    temp_count = 0 # 0 = off, anything else = on
 
     markdown_content = "--- ---\n\n"
     if temp_count == 1: # So i can turn it off while testing.
